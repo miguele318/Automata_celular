@@ -21,34 +21,33 @@ elif(int(sys.argv[3]) < 0 ):
     exit(0)
 
 
-pygame.init()
-bg = 'white'
-cuadro = 'black'
-linea = 'gray'
-regla = int(sys.argv[1])
-tiempo = int(sys.argv[2])
-nombre = str(time.strftime("%H-%M-%S"))+'_Automata_'+str(regla)+'.txt'
-#Define el numero de celdas del juego en x
-nyC = int(sys.argv[3])
 
-
-pauseExect = True
-run = True
-z = x = 0
-time_sleep = 0.5    
-
-rule= list(np.binary_repr(regla, width=8))
-rule.reverse()
-
-def imprimirCuadricula(nyC, nxC, tamCelda, pygame,):
-    #Dibujar cuadricula
-    screen.fill(bg)
-
+def iniciarAutomata(nyC, nxC, tamCelda, pygame,):
     #Define el estado de las celdas. Vivas = 1 ; Muertas = 0
     gameState = np.zeros((nxC, nyC), dtype=int)
-    gameState[0 , int(nyC / 2)] = 1
+    #gameState[0 , int(nyC / 2)] = 1
+    
+    """ gameState[0 , 21] = 1
+    gameState[0 , 45] = 1
+    gameState[0 , 53] = 1
+    gameState[0 , 88] = 1
+    gameState[0 , 103] = 1
+    gameState[0 , 94] = 1
+ """
+
+    gameState[0 , 7] = 1
+    gameState[0 , 11] = 1
+    gameState[0 , 12] = 1
+    gameState[0 , 25] = 1
+    gameState[0 , 26] = 1
+    gameState[0 , 32] = 1
+    gameState[0 , 47] = 1
+    gameState[0 , 101] = 1
+
     newGameState = np.copy(gameState)
 
+    #Dibujar cuadricula
+    screen.fill(bg)
     for y in range(0, nyC):
         for x in range(0, nxC):                          
             poly = [( (y) * tamCelda , (x) * tamCelda),
@@ -77,7 +76,7 @@ def process_events(pauseExect, run, time_sleep, x, gameState, newGameState, glob
             elif (event.key == pygame.K_DOWN):
                 time_sleep = time_sleep + 0.1
             elif (event.key == pygame.K_ESCAPE):
-                gameState, newGameState = imprimirCuadricula(nyC, nxC, tamCelda, pygame)
+                gameState, newGameState = iniciarAutomata(nyC, nxC, tamCelda, pygame)
                 pauseExect = True
                 x = 0
                 global_time = 0
@@ -105,22 +104,31 @@ def process_mouse():
              
     return gameState, newGameState
 
+
+pygame.init()
+
+bg = 'white'
+cuadro = 'black'
+linea = 'gray'
+regla = int(sys.argv[1])
+rule= list(np.binary_repr(regla, width=8))
+rule.reverse()
+tiempo = int(sys.argv[2])
+
+#Define el numero de celdas del juego en x
+nyC = int(sys.argv[3])
 #Define el tamaño de la pantalla del juego
 zise = width, height = 1700, 950 
-
-
 #Define el tamaño de cada celda del juego
-#dimCW   dimCH
 tamCelda = (width - 1) / nyC
-
 #Define el numero de celdas del juego en y
 nxC = int(height / tamCelda)
-
 screen = pygame.display.set_mode((width,height))
 screen.fill(bg)
 
+nombre = str(time.strftime("%H-%M-%S"))+'_Automata_'+str(regla)+'.txt'
 
-gameState, newGameState = imprimirCuadricula(nyC, nxC, tamCelda, pygame)
+gameState, newGameState = iniciarAutomata(nyC, nxC, tamCelda, pygame)
 
 
 start_time = 0
@@ -128,6 +136,11 @@ end_time = 0
 global_time = 0
 
 varGuardar = True
+pauseExect = True
+run = True
+x = 0
+time_sleep = 0.5 
+
 while run:
     start_time = time.time()
     pauseExect, run, time_sleep, x, gameState, newGameState, global_time = process_events(pauseExect, run, time_sleep, x, gameState, newGameState, global_time)                
@@ -164,7 +177,7 @@ while run:
 
     end_time = time.time() 
     xx = end_time- start_time
-    if( x == nxC -1):
+    if( x == nxC-2):
         varGuardar = True
     if not pauseExect :
         x = (x + 1) % nxC
@@ -172,10 +185,11 @@ while run:
 
     if varGuardar:
         f_handle = open(nombre, 'a')
-        np.savetxt(f_handle, gameState)
+        np.savetxt(f_handle, gameState, fmt='%d')
         f_handle.write('\n\n')
         f_handle.close()
         varGuardar = False
+
 
 
 
